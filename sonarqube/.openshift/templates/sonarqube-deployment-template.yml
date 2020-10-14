@@ -147,6 +147,9 @@ objects:
           volumeMounts:
           - mountPath: /opt/sonarqube/data
             name: sonar-data
+          - mountPath: /opt/sonarqube/conf/tls.crt
+            name: oauth-cert
+            subPath: tls.crt
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         schedulerName: default-scheduler
@@ -155,6 +158,9 @@ objects:
         serviceAccountName: sonarqube
         terminationGracePeriodSeconds: 30
         volumes:
+        - name: oauth-cert
+          secret:
+            secretName: openshift-oauth-proxy-tls
         - name: sonar-data
           persistentVolumeClaim:
             claimName: sonarqube-data
