@@ -61,6 +61,8 @@ objects:
 - apiVersion: apps.openshift.io/v1
   kind: DeploymentConfig
   metadata:
+    annotations:
+      reloader.stakater.com/auto: "true"
     generation: 1
     labels:
       app: sonarqube
