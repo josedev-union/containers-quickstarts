@@ -160,7 +160,7 @@ objects:
         volumes:
         - name: oauth-cert
           secret:
-            secretName: openshift-oauth-proxy-tls
+            secretName: ${OAUTH_CERT_SECRET}
         - name: sonar-data
           persistentVolumeClaim:
             claimName: sonarqube-data
@@ -303,3 +303,7 @@ parameters:
   - name: SONAR_SEARCH_JAVA_ADDITIONAL_OPTS
     description: Pass in additional Java opts to ElasticSearch
     displayName: Add sonar.search.javaAdditionalOpts
+  - name: OAUTH_CERT_SECRET
+    description: The secret name which includes oauth certificate for ocp api
+    displayName: Oauth Secret Name including tls.crt key
+    value: openshift-oauth-proxy-tls
