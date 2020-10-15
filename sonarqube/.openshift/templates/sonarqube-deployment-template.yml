@@ -4,6 +4,42 @@ metadata:
   name: "sonarqube"
 objects:
 - apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: sonarqube-properties
+  data:
+    sonar.properties: |
+      sonar.log.console=true
+      sonar.jdbc.username=${env:JDBC_USERNAME}
+      sonar.jdbc.password=${env:JDBC_PASSWORD}
+      sonar.jdbc.url=${env:JDBC_URL}
+      sonar.forceAuthentication=${env:FORCE_AUTHENTICATION}
+      sonar.authenticator.createUsers=${env:SONAR_AUTOCREATE_USERS}
+      sonar.log.level=${env:SONAR_LOG_LEVEL}
+      sonar.search.javaAdditionalOpts=${env:SONAR_SEARCH_JAVA_ADDITIONAL_OPTS}
+      http.proxyHost=${env:PROXY_HOST}
+      http.proxyPort=${env:PROXY_PORT}
+      http.proxyUser=${env:PROXY_USER}
+      http.proxyPassword=${env:PROXY_PASSWORD}
+      sonar.security.realm=${env:LDAP_REALM}
+      ldap.url=${env:LDAP_URL}
+      ldap.bindDn=${env:LDAP_BINDDN}
+      ldap.bindPassword=${env:LDAP_BINDPASSWD}
+      ldap.contextFactoryClass=${env:LDAP_CONTEXTFACTORY}
+      ldap.StartTLS=${env:LDAP_STARTTLS}
+      ldap.authentication=${env:LDAP_AUTHENTICATION}
+      ldap.user.baseDn=${env:LDAP_USER_BASEDN}
+      ldap.user.request=${env:LDAP_USER_REQUEST}
+      ldap.user.realNameAttribute=${env:LDAP_USER_REAL_NAME_ATTR}
+      ldap.user.emailAttribute=${env:LDAP_USER_EMAIL_ATTR}
+      ldap.group.baseDn=${env:LDAP_GROUP_BASEDN}
+      ldap.group.request=${env:LDAP_GROUP_REQUEST}
+      ldap.group.idAttribute=${env:LDAP_GROUP_ID_ATTR}
+      kubernetes.service=https://${env:KUBERNETES_SERVICE_HOST}:${env:KUBERNETES_SERVICE_PORT}/
+      sonar.auth.openshift.isEnabled=true
+      oauth.cert=/opt/sonarqube/conf/tls.crt
+      sonar.auth.openshift.sar.groups=stakater-team=sonar-administrators,sre-team=sonar-users,stakater-temp-grp=Test-ocp
+- apiVersion: v1
   kind: Secret
   stringData:
     password: ${SONAR_LDAP_BIND_PASSWORD}
@@ -150,6 +186,9 @@ objects:
           - mountPath: /opt/sonarqube/conf/tls.crt
             name: oauth-cert
             subPath: tls.crt
+          - mountPath: /opt/sonarqube/conf/sonar.properties
+            name: properties
+            subPath: sonar.properties
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         schedulerName: default-scheduler
@@ -161,6 +200,9 @@ objects:
         - name: oauth-cert
           secret:
             secretName: ${OAUTH_CERT_SECRET}
+        - name: properties
+          configMap:
+            name: sonarqube-properties
         - name: sonar-data
           persistentVolumeClaim:
             claimName: sonarqube-data
